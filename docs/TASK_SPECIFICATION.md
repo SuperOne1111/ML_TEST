@@ -136,7 +136,7 @@ SESSION_005: ExecutionEngine 骨架
     ↓
 SESSION_006: 状态机规则
     ↓
-...（参考完整执行计划）
+...（参考PROJECT_PLAN.md 完整执行计划）
 ```
 
 ## 会话结束指令
