@@ -17,17 +17,17 @@
 
 ## 阶段 1：基础设施层（Infrastructure Layer）
 
-| 序号 | 任务 | 文件 | 优先级 | 预计耗时 |
-|------|------|------|--------|----------|
-| 1.1 | Tracer 抽象基类 | src/infrastructure/tracer/base_tracer.py | P0 | 1h |
-| 1.2 | Tracer 控制台实现 | src/infrastructure/tracer/console_tracer.py | P0 | 1h |
-| 1.3 | Tracer 单元测试 | tests/infrastructure/test_tracer.py | P0 | 1h |
-| 1.4 | Memory 抽象基类 | src/infrastructure/memory/base_memory.py | P0 | 1h |
-| 1.5 | Memory 本地实现 | src/infrastructure/memory/local_memory.py | P1 | 2h |
-| 1.6 | Memory 单元测试 | tests/infrastructure/test_memory.py | P0 | 1h |
-| 1.7 | Snapshot 抽象基类 | src/infrastructure/snapshot/base_snapshot.py | P0 | 1h |
-| 1.8 | Snapshot JSON 实现 | src/infrastructure/snapshot/json_snapshot.py | P0 | 2h |
-| 1.9 | Snapshot 单元测试 | tests/infrastructure/test_snapshot.py | P0 | 1h |
+| 序号 | 任务 | 文件 | 优先级 | 预计耗时 | 状态 |
+|------|------|------|--------|----------|------|
+| 1.1 | Tracer 抽象基类 | src/infrastructure/tracer/base_tracer.py | P0 | 1h | ✅ |
+| 1.2 | Tracer 控制台实现 | src/infrastructure/tracer/console_tracer.py | P0 | 1h | ✅ |
+| 1.3 | Tracer 单元测试 | tests/infrastructure/test_tracer.py | P0 | 1h | ✅ |
+| 1.4 | Memory 抽象基类 | src/infrastructure/memory/base_memory.py | P0 | 1h | |
+| 1.5 | Memory 本地实现 | src/infrastructure/memory/local_memory.py | P1 | 2h | |
+| 1.6 | Memory 单元测试 | tests/infrastructure/test_memory.py | P0 | 1h | |
+| 1.7 | Snapshot 抽象基类 | src/infrastructure/snapshot/base_snapshot.py | P0 | 1h | |
+| 1.8 | Snapshot JSON 实现 | src/infrastructure/snapshot/json_snapshot.py | P0 | 2h | |
+| 1.9 | Snapshot 单元测试 | tests/infrastructure/test_snapshot.py | P0 | 1h | |
 
 **阶段验收标准**：
 - [ ] 所有基础设施组件通过 mypy 类型检查
