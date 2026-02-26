@@ -81,4 +81,4 @@ python -c "from src.infrastructure.memory.local_memory import LocalMemory; memor
 4. docs/SESSION_HANDOVER.md（当前进度）
 5. docs/TASK_SPECIFICATION.md（本次任务）
 
-➡️ **下一步**: 准备 SESSION_004 - Snapshot 抽象基类实现
+
