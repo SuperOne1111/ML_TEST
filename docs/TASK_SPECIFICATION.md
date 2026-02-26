@@ -1,20 +1,19 @@
 # 本次任务说明 (Task Specification)
 
 ## 会话编号
-SESSION_002
+SESSION_003
 
 ## 本次目标
-实现基础设施层 - Tracer 追踪系统
+实现基础设施层 - Memory 抽象基类与本地实现
 
 ## 任务范围
 
 ### 需要实现的文件
 | 文件路径 | 优先级 | 说明 |
 |----------|--------|------|
-| src/infrastructure/tracer/base_tracer.py | P0 | BaseTracer 抽象实现 |
-| src/infrastructure/tracer/console_tracer.py | P0 | ConsoleTracer 具体实现 |
-| src/infrastructure/tracer/__init__.py | P0 | 模块导出 |
-| tests/infrastructure/test_tracer.py | P0 | 单元测试 |
+| src/infrastructure/memory/base_memory.py | P0 | BaseMemory 抽象实现 |
+| src/infrastructure/memory/local_memory.py | P1 | LocalMemory 具体实现 |
+| tests/infrastructure/test_memory.py | P0 | 单元测试 |
 
 ### 不需要修改的文件
 | 文件路径 | 原因 |
@@ -23,42 +22,43 @@ SESSION_002
 | src/core/types.py | 枚举定义，本次无关 |
 | src/core/models.py | 数据模型，本次无关 |
 | src/core/protocols.py | 协议定义，本次无关 |
+| src/infrastructure/tracer/* | Tracer 已完成，本次无关 |
 
 ## 输入依赖
 
 ### 需要导入的模块
 ```python
-from src.core.interfaces import BaseTracer
-from src.core.types import TraceEventType
-from src.core.models import GlobalState
+from src.core.interfaces import BaseMemory
+from src.core.types import MemoryScope
+from typing import List, Dict, Any, Optional
 from datetime import datetime
-from typing import List, Dict, Any
 import json
-import os
+import asyncio
 ```
 
 ### 需要调用的组件
 | 组件 | 用途 |
 |------|------|
-| TraceEventType | 标准化事件类型 |
-| GlobalState.trace_id | 追踪 ID 来源 |
+| MemoryScope | 标准化记忆范围 |
+| BaseMemory | 抽象基类接口 |
 
 ## 输出要求
 
 ### 功能要求
 
-#### BaseTracer（抽象类已在 interfaces.py 定义）
+#### BaseMemory（抽象类已在 interfaces.py 定义）
 - [ ] 无需额外实现，interfaces.py 已定义
 
-#### ConsoleTracer（具体实现）
-- [ ] 实现 record_event() 方法，打印到控制台
-- [ ] 实现 get_trace() 方法，返回事件列表
-- [ ] 事件必须包含：timestamp, event_type, payload, trace_id
-- [ ] 支持按 trace_id 过滤事件
-- [ ] 事件按时间顺序存储
+#### LocalMemory（具体实现）
+- [ ] 实现 store() 方法，支持按 scope 存储数据
+- [ ] 实现 retrieve() 方法，支持按 scope 检索数据  
+- [ ] 实现 search() 方法，支持语义搜索
+- [ ] 实现 record_failure_pattern() 方法，记录失败模式
+- [ ] 支持三种 MemoryScope：EPHEMERAL、SESSION、GLOBAL
+- [ ] 支持数据过期时间设置
 
 ### 代码要求
-- [ ] ConsoleTracer 必须继承 BaseTracer
+- [ ] LocalMemory 必须继承 BaseMemory
 - [ ] 必须通过 mypy 类型检查
 - [ ] 必须包含完整的类型注解
 - [ ] 必须遵守 CONTEXT_CONSTRAINTS.md 设计约束
@@ -66,11 +66,12 @@ import os
 ### 测试要求
 ```python
 # 必须覆盖的场景
-- [ ] 记录事件后能在 get_trace 中查询到
-- [ ] 不同 trace_id 的事件相互隔离
-- [ ] 事件按时间顺序返回
-- [ ] 所有 TraceEventType 都能正常记录
-- [ ] payload 支持任意 Dict 数据
+- [ ] 在不同 scope 下存储和检索数据
+- [ ] search() 方法能返回匹配的结果
+- [ ] record_failure_pattern() 正确记录失败模式
+- [ ] 数据过期机制正常工作
+- [ ] 不同 scope 的数据隔离
+- [ ] 存储复杂数据结构
 ```
 
 ## 验收标准
@@ -78,57 +79,56 @@ import os
 ### 代码验收
 ```bash
 # 类型检查
-mypy src/infrastructure/tracer/
+mypy src/infrastructure/memory/
 
 # 单元测试
-pytest tests/infrastructure/test_tracer.py -v
+pytest tests/infrastructure/test_memory.py -v
 ```
 
 **通过标准**：
 - [ ] mypy 无错误
-- [ ] pytest 全部通过（预计 5-8 个用例）
+- [ ] pytest 全部通过（预计 6-8 个用例）
 
 ### 功能验收
-- [ ] 能记录 STATE_TRANSITION 事件
-- [ ] 能记录 AGENT_DECISION 事件
-- [ ] 能记录 TOOL_CALL_START/END 事件
-- [ ] get_trace(trace_id) 返回正确的事件列表
-- [ ] 事件包含完整的时间戳
+- [ ] 能在 EPHEMERAL scope 存储临时数据
+- [ ] 能在 SESSION scope 存储会话数据
+- [ ] 能在 GLOBAL scope 存储全局数据
+- [ ] search() 返回相关结果
+- [ ] record_failure_pattern() 正确记录失败模式
+- [ ] 数据按 scope 隔离
 
 ### 设计约束验收
-- [ ] ConsoleTracer 继承 BaseTracer
-- [ ] 使用标准 TraceEventType 枚举
+- [ ] LocalMemory 继承 BaseMemory
+- [ ] 使用标准 MemoryScope 枚举
 - [ ] 未修改 core/ 目录下任何文件
 
 ## 预计耗时
-3-4 小时
+4-5 小时
 
 ## 风险提示
 
 | 风险 | 应对措施 |
 |------|----------|
-| 时间戳格式不统一 | 使用 datetime.isoformat() 标准化 |
-| 内存泄漏（事件无限累积） | 后续添加事件清理机制，本次暂不实现 |
-| 并发写入冲突 | 本次单线程实现，后续添加锁 |
+| 内存泄漏（数据无限累积） | 实现 TTL 机制，定期清理过期数据 |
+| 并发访问冲突 | 添加锁机制保护共享资源 |
+| 搜索性能问题 | 本次使用简单匹配，后续可扩展为向量搜索 |
 
 ## 下一步计划
 
 ### 本次任务完成后
-1. 更新 SESSION_HANDOVER.md（记录 SESSION_002 完成情况）
-2. 创建 SESSION_003 的 TASK_SPECIFICATION.md
+1. 更新 SESSION_HANDOVER.md（记录 SESSION_003 完成情况）
+2. 创建 SESSION_004 的 TASK_SPECIFICATION.md
 
-### 下一个任务（SESSION_003）
+### 下一个任务（SESSION_004）
 | 任务 | 文件 | 优先级 |
 |------|------|--------|
-| Memory 抽象基类 | src/infrastructure/memory/base_memory.py | P0 |
-| Memory 本地实现 | src/infrastructure/memory/local_memory.py | P1 |
-| Memory 单元测试 | tests/infrastructure/test_memory.py | P0 |
+| Snapshot 抽象基类 | src/infrastructure/snapshot/base_snapshot.py | P0 |
+| Snapshot JSON 实现 | src/infrastructure/snapshot/json_snapshot.py | P1 |
+| Snapshot 单元测试 | tests/infrastructure/test_snapshot.py | P0 |
 
 ### 后续任务路线
 ```
-SESSION_002: Tracer ✅ (本次)
-    ↓
-SESSION_003: Memory
+SESSION_003: Memory ✅ (本次)
     ↓
 SESSION_004: Snapshot
     ↓
@@ -143,6 +143,6 @@ SESSION_006: 状态机规则
 
 完成本次任务后，请执行：
 1. 运行所有验收命令确保通过
-2. 生成 SESSION_002 的 SESSION_HANDOVER.md 内容
-3. 草拟 SESSION_003 的 TASK_SPECIFICATION.md 框架
+2. 生成 SESSION_003 的 SESSION_HANDOVER.md 内容
+3. 草拟 SESSION_004 的 TASK_SPECIFICATION.md 框架
 4. 更新 docs/CONTEXT.md 中的"当前进度"字段
