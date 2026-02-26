@@ -1,0 +1,99 @@
+multi_agent_system/
+├── README.md                    # 项目说明
+├── requirements.txt             # 依赖清单
+├── pyproject.toml              # 项目配置
+├── .pre-commit-config.yaml     # 代码检查钩子
+├── mypy.ini                    # 类型检查配置
+│
+├── docs/                       # 设计文档（你的"项目圣经"）
+│   ├── CONTEXT.md              # 核心约束（每次对话必带）
+│   ├── requirements.md         # 需求文档
+│   ├── interfaces.md           # 接口框架
+│   ├── sequence.md             # 流程图
+│   └── SESSION_SUMMARY_*.md    # 会话交接记录
+│
+├── src/
+│   ├── __init__.py
+│   │
+│   ├── core/                   # 【核心层】类型定义与接口抽象（不可随意改）
+│   │   ├── __init__.py
+│   │   ├── types.py            # 枚举类型 (LifecycleState, AgentRole 等)
+│   │   ├── models.py           # Pydantic 模型 (GlobalState, ExecutionContext 等)
+│   │   ├── protocols.py        # 错误与决策协议 (StructuredError, PolicyDecision 等)
+│   │   └── interfaces.py       # 7 个 ABC 抽象接口 (BaseAgent, BaseTool 等)
+│   │
+│   ├── engine/                 # 【执行层】状态机核心（唯一可修改状态的组件）
+│   │   ├── __init__.py
+│   │   ├── execution_engine.py # BaseExecutionEngine 实现
+│   │   ├── state_machine.py    # 状态转移规则定义
+│   │   └── batch_manager.py    # 并行批次管理
+│   │
+│   ├── agents/                 # 【认知层】5 类 Agent 实现
+│   │   ├── __init__.py
+│   │   ├── base_agent.py       # BaseAgent 通用实现骨架
+│   │   ├── context_builder.py  # ContextBuilderAgent
+│   │   ├── planner.py          # PlannerAgent
+│   │   ├── plan_critic.py      # PlanCriticAgent
+│   │   ├── step_executor.py    # StepExecutorAgent
+│   │   └── reviewer.py         # ReviewerAgent
+│   │
+│   ├── tools/                  # 【工具层】工具注册与执行
+│   │   ├── __init__.py
+│   │   ├── base_tool.py        # BaseTool 通用实现骨架
+│   │   ├── registry.py         # ToolRegistry
+│   │   ├── validator.py        # Schema 验证器
+│   │   └── builtin/            # 内置工具实现
+│   │       ├── __init__.py
+│   │       ├── search_tool.py
+│   │       └── calculator_tool.py
+│   │
+│   ├── policy/                 # 【治理层】策略与权限
+│   │   ├── __init__.py
+│   │   ├── base_policy.py      # BasePolicy 实现
+│   │   ├── rules.py            # 状态转移规则引擎
+│   │   ├── risk_control.py     # 风险控制模块
+│   │   └── permission.py       # 权限系统
+│   │
+│   ├── infrastructure/         # 【基础设施层】记忆、快照、追踪
+│   │   ├── __init__.py
+│   │   ├── memory/
+│   │   │   ├── __init__.py
+│   │   │   ├── base_memory.py  # BaseMemory 实现
+│   │   │   └── local_memory.py # 本地存储实现（简化版）
+│   │   ├── snapshot/
+│   │   │   ├── __init__.py
+│   │   │   ├── base_snapshot.py # BaseSnapshotManager 实现
+│   │   │   └── json_snapshot.py # JSON 快照实现
+│   │   └── tracer/
+│   │       ├── __init__.py
+│   │       ├── base_tracer.py  # BaseTracer 实现
+│   │       └── console_tracer.py # 控制台日志实现
+│   │
+│   ├── registry/               # 【注册中心】依赖注入
+│   │   ├── __init__.py
+│   │   ├── agent_registry.py   # AgentRegistry
+│   │   └── component_registry.py # 统一组件注册
+│   │
+│   └── main.py                 # 入口文件
+│
+├── tests/                      # 【测试层】单元测试与集成测试
+│   ├── __init__.py
+│   ├── conftest.py             # pytest 配置与 fixture
+│   ├── unit/
+│   │   ├── test_engine.py
+│   │   ├── test_agents.py
+│   │   ├── test_tools.py
+│   │   ├── test_policy.py
+│   │   └── test_infrastructure.py
+│   └── integration/
+│       ├── test_workflow.py    # 完整工作流测试
+│       └── test_self_healing.py # 自愈机制测试
+│
+├── configs/                    # 【配置层】可热更新配置
+│   ├── default.yaml            # 默认配置
+│   ├── policies.yaml           # 策略规则（可热更新）
+│   └── permissions.yaml        # 权限配置
+│
+└── logs/                       # 【运行日志】
+    ├── traces/                 # Trace 回放日志
+    └── snapshots/              # 快照存储

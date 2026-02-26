@@ -1,0 +1,35 @@
+# 核心依赖
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# 异步支持
+asyncio>=3.4.3
+
+# 类型检查
+mypy>=1.8.0
+types-requests>=2.31.0
+types-PyYAML>=6.0.12
+
+# 代码格式化
+black>=24.1.0
+isort>=5.13.2
+
+# 测试
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+pytest-cov>=4.1.0
+
+# 预提交
+pre-commit>=3.6.0
+
+# 可选：LLM 客户端 (按需安装)
+# openai>=1.10.0
+# anthropic>=0.18.0
+# ollama>=0.1.0
+
+# 可选：长期记忆
+# redis>=5.0.0
+# chromadb>=0.4.0
+
+# 可选：配置管理
+# pyyaml>=6.0.1
