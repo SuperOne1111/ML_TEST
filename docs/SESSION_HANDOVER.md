@@ -72,13 +72,6 @@ pytest tests/infrastructure/test_memory.py -v
 python -c "from src.infrastructure.memory.local_memory import LocalMemory; memory = LocalMemory(); print('LocalMemory imported successfully')"
 ```
 
-## 注意事项
 
-⚠️ 下次会话开始时，请先阅读：
-1. docs/PROJECT_OVERVIEW.md（项目目标）
-2. docs/CONTEXT_CONSTRAINTS.md（设计约束）
-3. docs/INTERFACE_CONTRACT.md（接口契约）
-4. docs/SESSION_HANDOVER.md（当前进度）
-5. docs/TASK_SPECIFICATION.md（本次任务）
 
 
