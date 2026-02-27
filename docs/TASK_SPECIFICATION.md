@@ -1,135 +1,65 @@
-# 本次任务说明 (Task Specification)
 
-## 会话编号
-SESSION_004
+##本次任务说明 (Task Specification)
+会话编号
+SESSION_005
+ 
+##🎯 任务目标
+实现执行引擎层（Execution Engine Layer）的核心骨架，包括基本的状态管理、生命周期控制和核心调度逻辑。
 
-## 本次目标
-实现基础设施层 - Snapshot 抽象基类与JSON实现
+## 📋 具体要求
 
-## 任务范围
+### 5.1 创建 ExecutionEngine 骨架类
+- **文件路径**: `src/engine/execution_engine.py`
+- **实现**: `BaseExecutionEngine` 的具体实现
+- **功能**:
+  - 初始化时接收 `GlobalState` 和基础设施组件引用
+  - 维护内部状态（如当前步骤、当前批次ID）
+  - 实现 `start()` 方法启动工作流
+  - 实现 `transition()` 方法驱动状态机流转
+  - 实现 `rollback()` 方法触发回滚机制
+  - 实现 `submit_human_feedback()` 方法处理人工反馈
+  - 实现 `register_tool()` 和 `set_policy()` 注入工具和策略
 
-### 需要实现的文件
-| 文件路径 | 优先级 | 说明 |
-|----------|--------|------|
-| src/infrastructure/snapshot/base_snapshot.py | P0 | BaseSnapshot 抽象实现 |
-| src/infrastructure/snapshot/json_snapshot.py | P1 | JsonSnapshot 具体实现 |
-| tests/infrastructure/test_snapshot.py | P0 | 单元测试 |
+### 5.2 实现基础状态机逻辑
+- **文件路径**: `src/engine/state_machine.py`
+- **内容**:
+  - 定义 `StateMachine` 类
+  - 包含硬编码的13个 `LifecycleState` 的流转规则（INIT → PLAN_CHECK → EXECUTION_PREPARE → STEP_EXECUTION → ... → COMPLETED/FAILED）
+  - 每个状态转换应有明确的触发条件和守卫条件（例如，从 `STEP_EXECUTION` 到 `STEP_REVIEW` 需要当前步骤完成）
+  - `transition()` 方法应能根据当前状态和事件调用正确的状态处理逻辑
 
-### 不需要修改的文件
-| 文件路径 | 原因 |
-|----------|------|
-| src/core/interfaces.py | 接口契约，禁止修改 |
-| src/core/types.py | 枚举定义，本次无关 |
-| src/core/models.py | 数据模型，本次无关 |
-| src/core/protocols.py | 协议定义，本次无关 |
-| src/infrastructure/tracer/* | Tracer 已完成，本次无关 |
-| src/infrastructure/memory/* | Memory 已完成，本次无关 |
+### 5.3 创建批处理器
+- **文件路径**: `src/engine/batch_manager.py`
+- **实现**: `BatchManager` 类
+- **功能**:
+  - 管理并行执行的步骤批次
+  - 提供添加步骤到批次的方法
+  - 提供执行整个批次的方法
+  - 提供获取批次执行结果的方法
 
-## 输入依赖
+### 5.4 编写单元测试
+- **文件路径**: `tests/unit/test_engine.py`
+- **内容**:
+  - 测试 `ExecutionEngine` 的初始化
+  - 测试 `start()` 方法能正确初始化流程
+  - 测试 `transition()` 方法能在不同状态间正确流转（至少覆盖3-5个主要流转）
+  - 测试 `rollback()` 方法能正确调用快照管理器
+  - 测试 `register_tool()` 和 `set_policy()` 的注入逻辑
+  - 测试 `BatchManager` 的批处理逻辑
 
-### 需要导入的模块
-```python
-from src.core.interfaces import BaseSnapshot
-from src.core.models import AgentState, Task
-from typing import List, Dict, Any, Optional
-from datetime import datetime
-import json
-import asyncio
-```
+### 5.5 更新模块导入
+- **文件路径**: `src/engine/__init__.py`
+- **内容**: 导出新创建的类 `ExecutionEngine`, `StateMachine`, `BatchManager`
 
-### 需要调用的组件
-| 组件 | 用途 |
-|------|------|
-| AgentState | 标准化智能体状态模型 |
-| Task | 标准化任务模型 |
-| BaseSnapshot | 抽象基类接口 |
+## ⚠️ 重要限制
+- **严禁** 修改 `src/core/` 目录下的任何文件。
+- **必须** 继承 `src/core/interfaces.py` 中定义的 `BaseExecutionEngine` 抽象类。
+- **必须** 使用在 `src/core/types.py` 中定义的 `LifecycleState` 枚举。
+- **必须** 在代码中使用 `src/core/models.py` 中定义的 `GlobalState`, `ExecutionContext`, `ExecutionPlan` 等模型。
+- **必须** 依赖已实现的 `src/infrastructure/snapshot/json_snapshot.py` 来实现 `rollback()` 功能。
+- **必须** 通过 `mypy` 类型检查和 `pytest` 单元测试。
 
-## 输出要求
-
-### 功能要求
-
-#### BaseSnapshot（抽象类已在 interfaces.py 定义）
-- [ ] 无需额外实现，interfaces.py 已定义
-
-#### JsonSnapshot（具体实现）
-- [ ] 实现 save() 方法，支持序列化保存状态
-- [ ] 实现 load() 方法，支持反序列化解析状态  
-- [ ] 实现 list_snapshots() 方法，支持查询快照列表
-- [ ] 实现 delete() 方法，支持删除指定快照
-- [ ] 支持多种数据格式：AgentState、Task、自定义对象
-- [ ] 支持快照过期时间设置
-
-### 代码要求
-- [ ] JsonSnapshot 必须继承 BaseSnapshot
-- [ ] 必须通过 mypy 类型检查
-- [ ] 必须包含完整的类型注解
-- [ ] 必须遵守 CONTEXT_CONSTRAINTS.md 设计约束
-
-### 测试要求
-```python
-# 必须覆盖的场景
-- [ ] save() 和 load() 方法能正确序列化和反序列化数据
-- [ ] list_snapshots() 方法能返回正确的快照列表
-- [ ] delete() 方法能正确删除指定快照
-- [ ] 快照过期机制正常工作
-- [ ] 支持多种数据格式（AgentState, Task等）
-- [ ] 数据持久化功能
-```
-
-## 验收标准
-
-### 代码验收
-```bash
-# 类型检查
-mypy src/infrastructure/snapshot/
-
-# 单元测试
-pytest tests/infrastructure/test_snapshot.py -v
-```
-
-**通过标准**：
-- [ ] mypy 无错误
-- [ ] pytest 全部通过（预计 6-8 个用例）
-
-### 功能验收
-- [ ] save() 能正确序列化并保存 AgentState
-- [ ] load() 能正确反序列化并加载快照
-- [ ] list_snapshots() 返回所有可用快照
-- [ ] delete() 正确删除指定快照
-- [ ] 数据按格式正确持久化
-- [ ] 快照过期机制正常工作
-
-### 设计约束验收
-- [ ] JsonSnapshot 继承 BaseSnapshot
-- [ ] 使用标准 AgentState 和 Task 模型
-- [ ] 未修改 core/ 目录下任何文件
-
-## 预计耗时
-4-5 小时
-
-## 风险提示
-
-| 风险 | 应对措施 |
-|------|----------|
-| 存储空间无限增长 | 实现 TTL 机制，定期清理过期快照 |
-| 并发写入冲突 | 添加锁机制保护共享资源 |
-| 序列化性能问题 | 优化序列化算法，支持增量快照 |
-
-
-
-
-
-### 后续任务路线
-```
-SESSION_004: Snapshot ✅ (本次)
-    ↓
-SESSION_005: ExecutionEngine 骨架(下一次任务）
-    ↓
-SESSION_006: 状态机规则
-    ↓
-SESSION_007: Policy 引擎
-    ↓
-...（参考PROJECT_PLAN.md 完整执行计划）
-```
-
-
+## 📝 补充说明
+- 此次实现是引擎的最小可行版本，专注于核心状态流转和回滚机制。高级调度、动态规划等功能将在后续迭代中添加。
+- `ExecutionContext` 是可快照化的状态，而 `GlobalState` 是引擎唯一可以修改其 `lifecycle_state` 的地方，这一点需要在 `transition()` 方法中严格遵守。
+- 批处理机制应考虑步骤间的依赖关系，确保前置步骤完成后，依赖它的步骤才能开始。
