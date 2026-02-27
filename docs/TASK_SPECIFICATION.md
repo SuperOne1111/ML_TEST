@@ -141,10 +141,4 @@ SESSION_007: Policy 引擎
 ...（参考PROJECT_PLAN.md 完整执行计划）
 ```
 
-## 会话结束指令
 
-完成本次任务后，请执行：
-1. 运行所有验收命令确保通过
-2. 生成 SESSION_003 的 SESSION_HANDOVER.md 内容
-3. 草拟 SESSION_004 的 TASK_SPECIFICATION.md 框架
-4. 更新 docs/CONTEXT.md 中的"当前进度"字段
