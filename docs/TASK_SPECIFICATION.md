@@ -119,7 +119,7 @@ pytest tests/infrastructure/test_snapshot.py -v
 
 ### 本次任务完成后
 1. 更新 SESSION_HANDOVER.md（记录 SESSION_003 完成情况）
-2. 创建 SESSION_004 的 TASK_SPECIFICATION.md
+2. 创建 下一次任务SESSION_004 的 TASK_SPECIFICATION.md
 
 ### 下一个任务（SESSION_005）
 | 任务 | 文件 | 优先级 |
@@ -132,7 +132,7 @@ pytest tests/infrastructure/test_snapshot.py -v
 ```
 SESSION_004: Snapshot ✅ (本次)
     ↓
-SESSION_005: ExecutionEngine 骨架
+SESSION_005: ExecutionEngine 骨架(下一次任务）
     ↓
 SESSION_006: 状态机规则
     ↓
